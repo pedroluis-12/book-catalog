@@ -7,7 +7,7 @@ object BookCatalogApi {
     const val BOOK_CATALOG_URL: String = "https://gutendex.com"
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> Response<T>.response(responseClass: Class<T>): T = if (this.isSuccessful) {
+    fun <T> Response<T>.getResponse(responseClass: Class<T>): T = if (this.isSuccessful) {
         this.body() as T
     } else {
         throw Exception()

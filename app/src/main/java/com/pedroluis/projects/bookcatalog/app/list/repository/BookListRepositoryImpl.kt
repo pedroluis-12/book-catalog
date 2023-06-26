@@ -5,7 +5,7 @@ import com.pedroluis.projects.bookcatalog.app.list.repository.api.BookListApi
 import com.pedroluis.projects.bookcatalog.app.list.repository.mapper.BookListMapperRepository
 import com.pedroluis.projects.bookcatalog.app.list.repository.response.BookListResponse
 import com.pedroluis.projects.bookcatalog.commons.api.BookCatalogApi
-import com.pedroluis.projects.bookcatalog.commons.api.BookCatalogApi.response
+import com.pedroluis.projects.bookcatalog.commons.api.BookCatalogApi.getResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
@@ -17,7 +17,7 @@ internal class BookListRepositoryImpl : BookListRepository {
         val response: BookListResponse
         val api = setupProviderApi()
         withContext(Dispatchers.IO) {
-            response = api.getBookList(page).response(BookListResponse::class.java)
+            response = api.getBookList(page).getResponse(BookListResponse::class.java)
         }
 
         return BookListMapperRepository.convertResponseToModel(response)
