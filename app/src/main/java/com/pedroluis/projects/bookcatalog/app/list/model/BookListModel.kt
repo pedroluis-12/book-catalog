@@ -4,5 +4,6 @@ data class BookListModel(
     val modelId: Int,
     val modelTitle: String,
     val modelAuthors: List<String>,
-    val modelSubjects: List<String>
+    val modelSubjects: List<String>,
+    val modelLastItem: Boolean
 )

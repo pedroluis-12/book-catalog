@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.BookCatalog" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="Theme.BookCatalog" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge" tools:ignore="ResourceName">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/book_catalog_color_231D19</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->

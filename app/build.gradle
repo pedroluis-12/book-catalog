@@ -20,6 +20,8 @@ android {
         }
     }
 
+    resourcePrefix 'book_catalog'
+
     buildTypes {
         release {
             minifyEnabled false
