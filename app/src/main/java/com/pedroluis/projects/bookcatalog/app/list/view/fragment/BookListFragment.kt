@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.pedroluis.projects.bookcatalog.R
 import com.pedroluis.projects.bookcatalog.app.list.model.BookListModel
 import com.pedroluis.projects.bookcatalog.app.list.view.adapter.BookListAdapter
@@ -18,6 +19,7 @@ import com.pedroluis.projects.bookcatalog.app.list.viewmodel.state.BookListViewM
 
 internal class BookListFragment : Fragment() {
 
+    private lateinit var bookListShimmer: ShimmerFrameLayout
     private lateinit var bookListRecycler: RecyclerView
 
     private lateinit var bookListViewModel: BookListViewModel
@@ -30,6 +32,7 @@ internal class BookListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bookListShimmer = view.findViewById(R.id.book_list_shimmer)
         bookListRecycler = view.findViewById(R.id.book_list_recycler)
 
         setupViewModel()
@@ -48,18 +51,26 @@ internal class BookListFragment : Fragment() {
     private fun setupObserver() {
         bookListViewModel.listViewState.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is BookListViewModelState.ShowLoading -> {
-                    Toast.makeText(requireContext(), "carregando...", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.HideLoading -> {
-                    Toast.makeText(requireContext(), "Pronto!", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.ShowError -> {
-                    Toast.makeText(requireContext(), "erro!", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.ShowErrorTryAgainLimit -> {}
+                is BookListViewModelState.ShowLoading -> setupBookListShowShimmer()
+                is BookListViewModelState.HideLoading -> setupBookListHideShimmer()
+                is BookListViewModelState.ShowError -> setupBookListError()
+                is BookListViewModelState.ShowErrorTryAgainLimit -> setupBookListErrorLimit()
                 is BookListViewModelState.ShowBookList -> setupBookListRecycler(state.bookList)
             }
+        }
+    }
+
+    private fun setupBookListShowShimmer() {
+        bookListShimmer.apply {
+            startShimmer()
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupBookListHideShimmer() {
+        bookListShimmer.apply {
+            hideShimmer()
+            visibility = View.GONE
         }
     }
 
@@ -69,6 +80,17 @@ internal class BookListFragment : Fragment() {
                 requireContext(), LinearLayoutManager.VERTICAL, false
             )
             adapter = BookListAdapter(list.toMutableList())
+            visibility = View.VISIBLE
         }
+    }
+
+    private fun setupBookListError() {
+        bookListRecycler.visibility = View.GONE
+        Toast.makeText(requireContext(), "erro!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupBookListErrorLimit() {
+        bookListRecycler.visibility = View.GONE
+        Toast.makeText(requireContext(), "erro limit!", Toast.LENGTH_SHORT).show()
     }
 }
