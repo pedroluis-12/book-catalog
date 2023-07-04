@@ -7,14 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.pedroluis.projects.bookcatalog.R
+import com.pedroluis.projects.bookcatalog.app.list.model.BookListModel
+import com.pedroluis.projects.bookcatalog.app.list.view.adapter.BookListAdapter
 import com.pedroluis.projects.bookcatalog.app.list.viewmodel.BookListViewModel
 import com.pedroluis.projects.bookcatalog.app.list.viewmodel.factory.BookListViewModelFactory
 import com.pedroluis.projects.bookcatalog.app.list.viewmodel.state.BookListViewModelState
 
 internal class BookListFragment : Fragment() {
 
-    private lateinit var listViewModel: BookListViewModel
+    private lateinit var bookListShimmer: ShimmerFrameLayout
+    private lateinit var bookListRecycler: RecyclerView
+
+    private lateinit var bookListViewModel: BookListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,39 +32,65 @@ internal class BookListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bookListShimmer = view.findViewById(R.id.book_list_shimmer)
+        bookListRecycler = view.findViewById(R.id.book_list_recycler)
+
         setupViewModel()
         setupObserver()
 
-        listViewModel.getList()
+        bookListViewModel.getList()
     }
 
     private fun setupViewModel() {
         val viewModelFactory = BookListViewModelFactory()
-        listViewModel = ViewModelProvider(
+        bookListViewModel = ViewModelProvider(
             this, viewModelFactory
         )[BookListViewModel::class.java]
     }
 
     private fun setupObserver() {
-        listViewModel.listViewState.observe(viewLifecycleOwner) { state ->
+        bookListViewModel.listViewState.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is BookListViewModelState.ShowLoading -> {
-                    Toast.makeText(requireContext(), "carregando...", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.HideLoading -> {
-                    Toast.makeText(requireContext(), "Pronto!", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.ShowError -> {
-                    Toast.makeText(requireContext(), "erro!", Toast.LENGTH_SHORT).show()
-                }
-                is BookListViewModelState.ShowErrorTryAgainLimit -> {}
-                is BookListViewModelState.ShowBookList -> {
-                    Toast.makeText(
-                        requireContext(),
-                        state.bookList.firstOrNull()?.modelTitle, Toast.LENGTH_SHORT
-                    ).show()
-                }
+                is BookListViewModelState.ShowLoading -> setupBookListShowShimmer()
+                is BookListViewModelState.HideLoading -> setupBookListHideShimmer()
+                is BookListViewModelState.ShowError -> setupBookListError()
+                is BookListViewModelState.ShowErrorTryAgainLimit -> setupBookListErrorLimit()
+                is BookListViewModelState.ShowBookList -> setupBookListRecycler(state.bookList)
             }
         }
+    }
+
+    private fun setupBookListShowShimmer() {
+        bookListShimmer.apply {
+            startShimmer()
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupBookListHideShimmer() {
+        bookListShimmer.apply {
+            hideShimmer()
+            visibility = View.GONE
+        }
+    }
+
+    private fun setupBookListRecycler(list: List<BookListModel>) {
+        bookListRecycler.apply {
+            layoutManager = LinearLayoutManager(
+                requireContext(), LinearLayoutManager.VERTICAL, false
+            )
+            adapter = BookListAdapter(list.toMutableList())
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupBookListError() {
+        bookListRecycler.visibility = View.GONE
+        Toast.makeText(requireContext(), "erro!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setupBookListErrorLimit() {
+        bookListRecycler.visibility = View.GONE
+        Toast.makeText(requireContext(), "erro limit!", Toast.LENGTH_SHORT).show()
     }
 }

@@ -8,14 +8,14 @@ internal object BookListMapperRepository {
 
     fun convertResponseToModel(response: BookListResponse): List<BookListModel> {
         val model = mutableListOf<BookListModel>()
-        response.responseResults?.forEach { item ->
+        response.responseResults?.forEachIndexed { index, item ->
             model.add(
                 BookListModel(
                     modelId = item.resultId ?: 0,
                     modelTitle = item.resultTitle ?: "",
                     modelAuthors = setupAuthors(item.resultAuthors),
-                    modelSubjects = item.resultSubjects ?: emptyList()
-
+                    modelSubjects = item.resultSubjects ?: emptyList(),
+                    modelLastItem = (index.inc() == response.responseResults.size)
                 )
             )
         }
