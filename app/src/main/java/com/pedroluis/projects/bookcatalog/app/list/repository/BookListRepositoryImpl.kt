@@ -8,26 +8,16 @@ import com.pedroluis.projects.bookcatalog.commons.api.BookCatalogApi
 import com.pedroluis.projects.bookcatalog.commons.api.BookCatalogApi.getResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 internal class BookListRepositoryImpl : BookListRepository {
 
     override suspend fun getBookList(page: Int): List<BookListModel> {
         val response: BookListResponse
-        val api = setupProviderApi()
+        val api = BookCatalogApi.setupProviderApi(api = BookListApi::class.java)
         withContext(Dispatchers.IO) {
             response = api.getBookList(page).getResponse(BookListResponse::class.java)
         }
 
         return BookListMapperRepository.convertResponseToModel(response)
-    }
-
-    private fun setupProviderApi(): BookListApi {
-        val retrofitClient = Retrofit.Builder()
-            .baseUrl(BookCatalogApi.BOOK_CATALOG_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        return retrofitClient.create(BookListApi::class.java)
     }
 }
